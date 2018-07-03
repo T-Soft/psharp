@@ -8,4 +8,10 @@
     <Folder Include="Properties\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Grammar\Parser3.g4">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+  </ItemGroup>
+
 </Project>

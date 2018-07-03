@@ -235,32 +235,32 @@ EVAL
 	;
 // not inplemented in parser yet
 SWITCH
-        : 'switch'
-        ;
+		: 'switch'
+		;
 CASE
-        : 'case'
-        ;
+		: 'case'
+		;
 TRY
-        : 'try'
-        ;
+		: 'try'
+		;
 REM
-        : 'rem'
-        ;
+		: 'rem'
+		;
 PROCESS
-        : 'process'
-        ;
+		: 'process'
+		;
 CONNECT
-        : 'connect'
-        ;
+		: 'connect'
+		;
 UNTAINT
-        : 'untaint'
-        ;
+		: 'untaint'
+		;
 TAINT
-        : 'taint'
-        ;
+		: 'taint'
+		;
 APPLY_TAINT
-        : 'apply-taint'
-        ;
+		: 'apply-taint'
+		;
 
 //============================================================================== Brackets
 //fragment
@@ -427,7 +427,7 @@ EVAL_BODY
 //============================================================================== Skipped NL & WS
 
 NL
-    : '\r\n'        -> channel(HIDDEN)
+	: '\r\n'        -> channel(HIDDEN)
 	;
 WS
 	//:	' ' : channel(HIDDEN)
