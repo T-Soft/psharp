@@ -1,0 +1,162 @@
+<% @TinyPG Namespace="Sharpen.Core.Parser"  Language="c#"%>
+
+// Types
+INTEGER	      	-> @"[0-9]+";
+DOUBLE	      		-> @"[0-9]*\.[0-9]+";
+
+// NOTE: since this grammar doesn't require string literals containing & and ^ to be escaped 
+// use preprocessor to correctly handle escaped and unescaped strings
+STRING             	-> @"(?![\s\$\^])""?[^\[\]\(\)\{\}\;]+""?";
+PLAIN			-> @"^[^\^\$@][^\^\$@{}]+";
+BOOLVALUE		-> @"true|false";
+
+// Brackets
+PARENOPEN		-> @"\(";
+PARENCLOSE		-> @"\)";
+BRACKETOPEN		-> @"\[";
+BRACKETCLOSE		-> @"\]";
+CURLYOPEN		-> @"\{";
+CURLYCLOSE		-> @"\}";
+
+// Symbols
+SC	        	-> @";";
+COMMA			-> @",";
+C			-> @":";
+CC			-> @"::";
+DOT			-> @"\.";
+PERCENT		-> @"%";
+
+// NOTE: first lookahead is a set of reserved words
+IDENTIFIER		-> @"(?!\^|\.|\$\.|BASE|CLASS|OPTIONS|USE|eval|for|if|while|true|false)[a-zA-Z_][a-zA-Z0-9_]*";
+HASHKEY		-> @"(?<=\$\.)[a-zA-Z_][a-zA-Z0-9_]*";
+CF			-> @"\^";
+DOL			-> @"\$";
+DOLDOT			-> @"\$\.";
+AT			-> @"@";
+NL			-> @"\n";
+
+// Logical
+AND			-> @"&&";
+OR			-> @"||";
+NOT			-> @"!";
+GT			-> @">";
+LT			-> @"<";
+LEQ			-> @"<=";
+GEQ			-> @">=";
+NE			-> @"!=";
+EQ			-> @"=";
+
+SNE			-> @"ne";
+SEQ			-> @"eq";
+SGT			-> @"gt";
+SLT			-> @"lt";
+
+EOF               	-> @"^$";
+
+// NOTE: since all whitespace chars are skipped use preprocessor + postprocessor to escape and restore multiline strings
+[Skip] WHITESPACE	-> @"\s+";
+[Skip] CCOMMENTLINE	-> @"//[^\n]*\n?";
+[Skip] COMMENTLINE	-> @"#[^\n]*\n?";
+[Skip] COMMENTBLOCK	-> @"/\*[^*]*\*+(?:[^/*][^*]*\*+)*/";
+
+// Language words
+WHILE			-> @"while";
+FOR			-> @"for";
+IF			-> @"if";
+USE			-> @"USE";
+CLASS			-> @"CLASS";
+BASE			-> @"BASE";
+OPTIONS		-> @"OPTIONS";
+DEF			-> @"def";
+IS			-> @"is";
+IN			-> @"in";
+FILEEXISTS		-> @"-f";
+DIRECTORYEXISTS	-> @"-d";
+EVAL			-> @"eval";
+
+// Production lines LL(1):
+Start			-> UseDirective? ClassDirective? BaseDirective? OptionsDirective? FunctionDefinition+ EOF;
+
+// NOTE: use preprocessor to gather USE and CLASS , BASE, OPTIONS expressions
+// and the exclude them from source
+UseDirective		-> USE IDENTIFIER (NL IDENTIFIER)*;
+ClassDirective	-> CLASS NL IDENTIFIER;
+BaseDirective		-> BASE NL IDENTIFIER;
+OptionsDirective	-> OPTIONS IDENTIFIER (NL IDENTIFIER)*;
+
+// Variable
+Variable		-> DOL IDENTIFIER ((DOT | C) (FieldName | Variable))*;
+FieldName 		-> IDENTIFIER;
+Literal		-> (INTEGER | DOUBLE | STRING | BOOLVALUE);
+
+// Function definition
+FunctionDefinition	-> AT FunctionName BRACKETOPEN ParamsDefinitions? BRACKETCLOSE LocalVariables? Body;
+FunctionName		-> IDENTIFIER;
+LocalVariables	-> BRACKETOPEN VariablesDefinitions BRACKETCLOSE;
+Body			-> (Call | Variable (Assignment?) | PLAIN)+;
+//Body			-> (Call | Assignment | STRING)+;
+
+Call			-> CF (EvalConstruct | WhileCycle | Function | ForCycle | IfCondition);
+
+//Plain			-> Variable;
+
+// Function call without ^
+Function		-> FullFunctionName (BRACKETOPEN | PARENOPEN) Params? (BRACKETCLOSE | PARENCLOSE);
+// NOTE : following rule prevents parsing a multi call such as ^a.b.c[]
+FullFunctionName	-> IDENTIFIER ((StaticPrefix | InstancePrefix | ConstructorPrefix) IDENTIFIER)?;
+
+// Prefixes
+StaticPrefix		-> C;
+InstancePrefix	-> DOT;
+ConstructorPrefix	-> CC;
+
+// Eval
+EvalConstruct		-> EVAL PARENOPEN EvalBody PARENCLOSE (BRACKETOPEN FormatString BRACKETCLOSE)?;
+EvalBody		-> STRING;
+FormatString		-> PERCENT STRING;
+
+// While cycle 
+WhileCycle		-> WHILE WhileCondition WhileBody CycleSeparator?;
+WhileCondition	-> PARENOPEN BoolCondition PARENCLOSE;
+WhileBody		-> CURLYOPEN Body CURLYCLOSE;
+
+CycleSeparator	-> (BRACKETOPEN | CURLYOPEN) (Body) (BRACKETCLOSE | CURLYCLOSE);
+
+// Bool condition
+BoolCondition 	-> (Variable (NOT)? (EQ | NE | GT | LT | IS | IN | SEQ | SNE | SGT | SLT) (Variable | Literal)) 
+				| (CF Function) 
+				| BOOLVALUE
+				| (NOT)? DEF Variable
+				| FILEEXISTS (Variable | STRING)
+				| DIRECTORYEXISTS (Variable | STRING);
+
+// For cycle
+ForCycle		-> FOR	ForCounter PARENOPEN ForFrom SC ForTo PARENCLOSE ForBody CycleSeparator?;
+ForCounter		-> BRACKETOPEN Variable BRACKETCLOSE;
+ForFrom		-> (INTEGER | (CF Function) | Variable);
+ForTo			-> (INTEGER | (CF Function) | Variable);
+ForBody		-> CURLYOPEN Body CURLYCLOSE;
+
+// If condition
+IfCondition		-> IF PARENOPEN BoolCondition PARENCLOSE IfTrueBranch IfFalseBranch?;
+IfTrueBranch		-> CURLYOPEN Body CURLYCLOSE;
+IfFalseBranch		-> CURLYOPEN Body CURLYCLOSE;
+
+// Assignment
+Assignment	-> (BRACKETOPEN | PARENOPEN) AssignmentBody (BRACKETCLOSE | PARENCLOSE);
+/*
+Assignment		-> Variable
+				(BRACKETOPEN | PARENOPEN) 
+					AssignmentBody
+				(BRACKETCLOSE | PARENCLOSE);
+*/
+AssignmentBody	-> INTEGER | DOUBLE | STRING | (CF Function) | BOOLVALUE | Variable | HashAssignment+;
+HashAssignment	-> DOLDOT Key (BRACKETOPEN | PARENOPEN) AssignmentBody (BRACKETCLOSE | PARENCLOSE);
+Key			-> IDENTIFIER;
+
+// Variables and parameters
+// NOTE: duplicated expression ahead is for local variables definition convenience
+VariablesDefinitions	-> IDENTIFIER (SC IDENTIFIER)*;
+ParamsDefinitions	-> IDENTIFIER (SC IDENTIFIER)*;
+Params			-> Param (SC Param)*;
+Param			-> INTEGER | DOUBLE | STRING | (CF Function) | HashAssignment+;
