@@ -1,4 +1,4 @@
-﻿namespace Psharp.Core.Helpers.Extensions
+﻿namespace Psharp.Core.Helpers
 {
 	public static class StringHelper
 	{

@@ -36,7 +36,16 @@ variablesDefinitions
 	;
 //============================================================================== BODY
 body
-	:	( variable | stringAssignment | numericOrBooleanAssignment | evalConstruct | whileCycle | forCycle | functionCall | ifCondition | STRING)+
+	:	(
+	    variable
+	    | stringAssignment
+	    | numericOrBooleanAssignment
+	    | evalConstruct
+	    | whileCycle
+	    | forCycle
+	    | functionCall
+	    | ifCondition
+	    | STRING)+
 	;
 
 //============================================================================== VARIABLE
@@ -165,23 +174,24 @@ ifTrueBranch
 ifFalseBranch	
 	: CURLYOPEN body CURLYCLOSE
 	;
+
 /*
  * Lexer Rules
  */
 //============================================================================== Lang symbols
-//fragment
+fragment
 CF
 	: '^'
 	;
-//fragment
+fragment
 AT
 	: '@'
 	;
-//fragment
+fragment
 DOL
 	: '$'
 	;
-//fragment
+fragment
 DOLDOT
 	: '$.'
 	;
@@ -189,10 +199,6 @@ DOLDOT
 COMMENTLINE	
 	: '#' ~[\r\n]+? ('\r'?'\n') -> channel(HIDDEN)
 	;
-COMMENTBLOCK
-	: '/*' .+? '*/'				-> skip
-	;
-
 //============================================================================== Language words
 WHILE			
 	: 'while'
