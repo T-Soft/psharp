@@ -9,26 +9,27 @@ program
 	;
 //============================================================================== DIRECTIVES
 useDirective
-	:	AT USE ID (NL ID)*
+	:	USE ID+
 	;
 classDirective
-	:	AT CLASS ID (NL ID)*
+	:	CLASS ID+
 	;
 baseDirective
-	:	AT BASE ID (NL ID)*
+	:	BASE ID+
 	;
 optionsDirective
-	:	AT OPTIONS ID (NL ID)*
+	:	OPTIONS ID+
 	;
-//============================================================================== FUNCTION DEFINITION
+//============================================================================== METHOD DEFINITION
 methodDefinition
-	:	METHOD_DECLARATION BRACKETOPEN paramsDefinitions? BRACKETCLOSE (BRACKETOPEN variablesDefinitions BRACKETCLOSE)? body
+	:	AT ID BRACKETOPEN paramsDefinitions? BRACKETCLOSE (BRACKETOPEN localsDefinitions BRACKETCLOSE)? body
 	;
 
 paramsDefinitions
 	:	ID (SC ID)*
 	;
-variablesDefinitions
+
+localsDefinitions
 	:	ID (SC ID)*
 	;
 //============================================================================== BODY

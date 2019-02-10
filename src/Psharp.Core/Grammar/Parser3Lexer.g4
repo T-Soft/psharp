@@ -9,9 +9,9 @@ INVOCATION_SUBJECT
     : CF ID
     ;
 
-METHOD_DECLARATION
-    : AT ID
-    ;
+//METHOD_DECLARATION
+//    : AT ID
+//    ;
 
 VARIABLE_NAME
     : DOL ID
@@ -32,7 +32,86 @@ MEMBER
 CTOR
     : CC ID
     ;
+//============================================================================== Logical operators
+LOGICAL_OPER
+	: AND | OR 
+	;
+
+BINARY_OPER
+	: GT | LT | LEQ | GEQ | NE | EQ
+	;
+
+BINARY_STRING_OPER
+	: SGT | SLT | SNE | SEQ
+	;
+
+//============================================================================== Unary operators
+
+NOT
+	: '!'
+	;
+
+//============================================================================== Binary operators
+
+AND			
+	: '&&'
+	;
+
+OR			
+	: '||'
+	;
+
+GT	
+	: '>'
+	;
+
+LT		
+	: '<'
+	;
+
+LEQ		
+	: '<='
+	;
+
+GEQ		
+	: '>='
+	;
+
+NE		
+	: '!='
+	;
+
+EQ		
+	: '='
+	;
+
+// String logical operations
+
+SNE		
+	: 'ne'
+	;
+
+SEQ		
+	: 'eq'
+	;
+
+SGT		
+	: 'gt'
+	;
+
+SLT		
+	: 'lt'
+	;
+
+//============================================================================== Identifiers
+ID
+	: [a-zA-Z_] [a-zA-Z0-9_]*
+	;
+
 //============================================================================== Lang symbols
+AT
+	: '@'
+	;
 fragment
 C
 	: ':'
@@ -46,10 +125,7 @@ fragment
 CF
 	: '^'
 	;
-fragment
-AT
-	: '@'
-	;
+
 fragment
 DOL
 	: '$'
@@ -74,102 +150,106 @@ SC
 COMMA
 	: ','
 	;
-//============================================================================== Comments
-COMMENTLINE	
-	: '#' ~[\r\n]+? ('\r'?'\n') -> channel(HIDDEN)
+
+//============================================================================== Directives
+USE
+	: '@USE'
+	;
+CLASS
+	: '@CLASS'
+	;
+BASE
+	: '@BASE'
+	;
+OPTIONS
+	: '@OPTIONS'
 	;
 //============================================================================== Language words
-WHILE			
+WHILE
 	: 'while'
 	;
-FOR			
+FOR
 	: 'for'
 	;
 IF
 	: 'if'
 	;
-USE			
-	: 'USE'
-	;
-CLASS			
-	: 'CLASS'
-	;
-BASE			
-	: 'BASE'
-	;
-OPTIONS		
-	: 'OPTIONS'
-	;
-DEF			
+DEF
 	: 'def'
 	;
-IS			
+IS
 	: 'is'
 	;
-IN			
+IN
 	: 'in'
 	;
-FILEEXISTS		
+FILEEXISTS
 	: '-f'
 	;
-DIRECTORYEXISTS	
+DIRECTORYEXISTS
 	: '-d'
 	;
-EVAL			
+EVAL
 	: 'eval'
 	;
-// not inplemented in parser yet
 SWITCH
-		: 'switch'
-		;
+    : 'switch'
+    ;
 CASE
-		: 'case'
-		;
+    : 'case'
+    ;
 TRY
-		: 'try'
-		;
+    : 'try'
+    ;
 REM
-		: 'rem'
-		;
+    : 'rem'
+    ;
 PROCESS
-		: 'process'
-		;
+    : 'process'
+    ;
 CONNECT
-		: 'connect'
-		;
+    : 'connect'
+    ;
 UNTAINT
-		: 'untaint'
-		;
+    : 'untaint'
+    ;
 TAINT
-		: 'taint'
-		;
+    : 'taint'
+    ;
 APPLY_TAINT
-		: 'apply-taint'
-		;
-
+    : 'apply-taint'
+    ;
+STATIC
+    : 'static'
+    ;
+LOCALS
+    : 'locals'
+    ;
+DYNAMIC
+    : 'dynamic'
+    ;
 //============================================================================== Brackets
-//fragment
-PARENOPEN	
+PARENOPEN
 	: '('
 	;
-//fragment
-PARENCLOSE	
+
+PARENCLOSE
 	: ')'
 	;
-//fragment
-BRACKETOPEN		
+
+BRACKETOPEN
 	: '['
 	;
-//fragment
-BRACKETCLOSE	
+
+BRACKETCLOSE
 	: ']'
 	;
-//fragment
-CURLYOPEN	
+
+CURLYOPEN
 	: '{'
 	;
-//fragment
-CURLYCLOSE	
+
+CURLYCLOSE
 	: '}'
 	;
 
@@ -178,118 +258,57 @@ MATH_OPER
 	: PLUS | MINUS | DIV | MUL
 	;
 fragment
-PLUS		
+PLUS
 	: '+'
 	;
 fragment
-MINUS		
+MINUS
 	: '-'
 	;
 fragment
-DIV		
+DIV
 	: '/'
 	;
 fragment
-MUL		
+MUL
 	: '*'
 	;
 
-//============================================================================== Logical operators
-NOT	
-	: '!'
-	;
-LOGICAL_OPER
-	: AND | OR 
-	;
-BINARY_OPER
-	: GT | LT | LEQ | GEQ | NE | EQ
-	;
-BINARY_STRING_OPER
-	: SGT | SLT | SNE | SEQ
-	;
-
-fragment
-AND			
-	: '&&'
-	;
-fragment
-OR			
-	: '||'
-	;
-fragment
-GT	
-	: '>'
-	;
-fragment
-LT		
-	: '<'
-	;
-fragment
-LEQ		
-	: '<='
-	;
-fragment
-GEQ		
-	: '>='
-	;
-fragment
-NE		
-	: '!='
-	;
-fragment
-EQ		
-	: '='
-	;
-// String logical operations
-fragment
-SNE		
-	: 'ne'
-	;
-fragment
-SEQ		
-	: 'eq'
-	;
-fragment
-SGT		
-	: 'gt'
-	;
-fragment
-SLT		
-	: 'lt'
-	;
-//============================================================================== Fragments for names & numbers
-//fragment
-ID
-	: [a-zA-Z_] [a-zA-Z0-9_]*
-	;
-
-fragment 
-DIGIT
-	: [0-9]
-	;
-//============================================================================== Literal values
+//============================================================================== Literals
 NUMBER
 	: DIGIT+
 	| DIGIT+ '.' DIGIT+ 
 	;
+
 BOOLVALUE
 	: 'true'
 	| 'false'
 	;
+
 STRING
 	: ~[#@$^{}()[\]][a-z]* '\r\n'
 	| ~[#@$^{}()[\]][~\]][a-z]* ']'
-	//| '[' .? ']'
+	;
+
+fragment
+DIGIT
+	: [0-9]
 	;
 EVAL_BODY
 	: ~[()]
 	;
+
+//============================================================================== Comments
+COMMENTLINE
+	: '#' ~[\r\n]+? ('\r'?'\n') -> channel(HIDDEN)
+	;
+
 //============================================================================== Skipped NL & WS
 
-NL
-	: '\r\n'        -> channel(HIDDEN)
-	;
+//NL
+//	: ('\r' | '\n' | '\r\n')     -> channel(HIDDEN)
+//	;
+
 WS
-	//:	' ' : channel(HIDDEN)
-	: [ \r\t\n]+ 	-> skip
+	: [ \n\t\r]+ -> skip
 	;
